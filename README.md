@@ -66,8 +66,8 @@ STFT (short time fourier transform) processing. STFT is a frequently used functi
 Figure 3: STFT performance principle
 
 As shown in Figure 3, a small window is applied to the entire signal and FFT is performed several times while moving the window according to time. As a result of STFT, the frequency change with time of the signal can be seen. At this time, since time resolution and frequency are trade-off relationships, it is important to properly adjust parameters to obtain optimal STFT results.
-<Figure 4> is a plot showing the STFT result in the form of a contour line using the contour function. One blue dot represents one pitch
-It is a plot expressed in the shape of a contour line. One blue dot represents one pitch
+Figure 4 is a plot showing the STFT result in the form of a contour line using the contour function. One blue dot represents one pitch
+
 
 
 ![image](https://user-images.githubusercontent.com/65432377/130620717-2d397092-d963-47c9-b1ed-a97aec3fec52.png)
