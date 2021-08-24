@@ -1,5 +1,10 @@
 # Analog-to-MIDI-Convert-System : Capstone Design for Electronics Engineering(2017)
 
+2017 Fall Semester Ewha Womans University College of Engineering, Department of Electrical Engineering, Paper for Capstone Design
+
+Yoon Choi, Don Kim, Professor Jaewon Kang
+
+
 A system based on MATLAB that reduce errors in MIDI files by using improved algorithm than those provided by existing Audio to MIDI converters 
 -	Eliminating unnecessary harmonics that makes the MIDI result errored 
 -	Extracting necessary elements to create MIDI file after eliminating harmonics 
