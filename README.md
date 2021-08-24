@@ -23,7 +23,7 @@ Audio to MIDI converting’ is a method of converting a wav file composed of wav
 It is necessary to listen to and write a professional who has absolute pitch.
 Therefore, it can bring great benefits in terms of cost as well.
   The audio processing system has been used continuously until now, and the audio to MIDI converting system is
-As shown in <Figure 1>, it consists of three steps.
+As shown in Figure 1 , it consists of three steps.
 
 
 ![image](https://user-images.githubusercontent.com/65432377/130601219-50be71d5-6ad3-4986-bfee-e234733b17e1.png)
@@ -53,6 +53,96 @@ There are many pitches in a single song. Since the sound intensity is not consta
 If a user uses a system that converts an existing audio file into a MIDI file without applying a separate harmonics removal algorithm, it is impossible to obtain a proper MIDI file result, and the general public who does not have a musical background can play even harmonics It is mistakenly recognized as the necessary notes for
 
 We devise a harmonics removal algorithm that improves upon these shortcomings to help users obtain accurate MIDI files.
+
+
+## II. Methods
+1. Implementation Environment
+  1.1. Audio signal processing with MATLAB
+ Get audio file data with MATLAB. Since it is necessary to analyze the frequency change over time of the audio signal,
+STFT (short time fourier transform) processing. STFT is a frequently used function in the MATLAB interface to represent a frequency that changes with time.
+
+
+![image](https://user-images.githubusercontent.com/65432377/130620659-b26b1e5c-bdb7-45ba-ab9d-81362255a648.png)
+Figure 3: STFT performance principle
+
+As shown in Figure 3, a small window is applied to the entire signal and FFT is performed several times while moving the window according to time. As a result of STFT, the frequency change with time of the signal can be seen. At this time, since time resolution and frequency are trade-off relationships, it is important to properly adjust parameters to obtain optimal STFT results.
+<Figure 4> is a plot showing the STFT result in the form of a contour line using the contour function. One blue dot represents one pitch
+It is a plot expressed in the shape of a contour line. One blue dot represents one pitch
+
+
+![image](https://user-images.githubusercontent.com/65432377/130620717-2d397092-d963-47c9-b1ed-a97aec3fec52.png)
+Figure 4: STFT result plot
+
+
+
+  1.2. Saving Frequency & MIDI note numer information using Excel
+  
+![image](https://user-images.githubusercontent.com/65432377/130620740-875856a5-1831-4a22-ad20-a3d19e2b7744.png)
+Figure 5: Frequecy – MIDI note number matching information
+
+Figure 5 shows the relationship between Frequency and MIDI note number. Frequency – Creates a DATA table in Excel where MIDI note numbers are matched with each other. Compare the STFT result value with the DATA table to find out the appropriate MIDI note number value. The resulting value is used as a component of the MIDI file.
+
+2. Create MIDI file
+ 2.1. MIDI file components
+In order to make an audio file into a MIDI file, it is necessary to get the appropriate data from the audio file and to be output in MIDI format based on it.
+The library provided by MATLAB was used and the configuration is as follows.
+
+(number of Notes) It consists of a matrix of X 8 dimensions. The number of notes here means "the number of sounds recognized as one pitch in the audio signal".
+ If the audio signal is a piano song, it means the number of pressed keys. Each note has 8 pieces of information.
+At this time, 1) to 6) actually involved in the MIDI file, and it is okay to omit 7) and 8).
+
+1) Track number: The index of the track containing the corresponding note.
+2) Channel number: Index of the channel containing the corresponding note.
+3) Note number: the electronic piano key number corresponding to the pitch
+4) Velocity: Velocity of the corresponding note
+5) Start time: The time at which the corresponding note is pressed
+6) End time: The time the note ends
+
+At this time, 1) and 2) are unified into one and the pitch is the same.
+It was put in the track and channel, and 4) Velocity was uniformly processed to simplify the MIDI file result.
+
+
+
+ 2.2. Remove Harmonics – Dynamic window
+We first tried to remove harmonics by applying a batch threshold condition without window segmentation.
+However, this method has errors in removing the harmonics of large notes and recognizing the fundamental frequencies of small notes.
+Approximate harmonics could be removed, but it was judged that the method of removing harmonics by applying a lumped threshold was not appropriate because all of the fundamental frequencies for small sounds were deleted.
+
+Therefore, to solve this problem, a dynamic window algorithm was devised.
+This is a method of dividing several windows and applying different thresholds to each window in order to distinguish harmonics in big notes and fundamental frequency in small notes
+
+Fundamental frequencies and harmonics of large notes occur at the same time, and they can be distinguished by their amplitude.
+However, when the fundamental frequency of a small note is the same as the harmonics of a large note, the fundamental frequency of a small note is recognized as unnecessary harmonics and is deleted to solve the problem.
+
+By separating the large harmonics and small fundamental frequency regions, we tried to process the signals of each region independently.
+When implementing this, it is assumed that the harmonics of large notes and the fundamental frequency of small notes exist at different times. We create windows that are flexibly divided according to time, and process them independently to make a difference between large notes and small notes. did not affect each other's signal processing.
+
+![image](https://user-images.githubusercontent.com/65432377/130627283-4d28adff-7e86-44e0-b17d-40908961718a.png)
+Figure 7: Application of Dynamic Window
+
+Figure 7 simply shows the principle of the dynamic window. When blue is fundamental frequency and green is harmonics, blue tones generated at the same time always have a higher level (amplitude) than green tones. Harmonics of large notes in the second window cannot affect the fundamental frequency in the third window with a similar level, and are processed only in each window (separated by a red line).
+Fundamental frequencies survive, and higher levels of harmonics are eliminated due to higher levels of fundamental frequencies.
+
+![image](https://user-images.githubusercontent.com/65432377/130627306-45ed2d84-3530-4663-bcfd-3a4a2f584235.png)
+Figure 8 shows the process of determining windows of various sizes.
+
+1) First, apply a small threshold value (vertical line with slope = 0) to the entire audio signal to remove harmonics that could potentially interfere with signal processing
+
+2) Divide the window based on the moment when threshold (vertical line with zero slope) -> (+) changes.
+3) Divide the window once more based on the moment when the slope changes to (-) -> threshold (vertical line with zero slope)
+
+4) For the divided windows, each threshold is designated and processed independently (harmonics removal)
+ 
+
+
+In the case of Figure 8, since it is divided twice by the red line and twice by the yellow line, it has a total of 5 windows.
+
+This algorithm helps to accurately classify the fundamental frequency by effectively removing the harmonics of the audio signal.
+In particular, it is possible to accurately detect the fundamental frequency even when several sounds with similar loudness occur at the same time.
+
+However, when sounds of different loudness occur at the same time, there is a limitation that these two cannot be divided according to time.
+Even if Threshold is applied to the window, it is because a small sound is deleted because it is a signal of the same time.
+In addition, if an audio file with a piano damper (sound effect) is used in the algorithm, the window cannot be properly divided due to the joint sound generated by the damper, and there is a limit to obtaining an accurate output value.
 
 
 
