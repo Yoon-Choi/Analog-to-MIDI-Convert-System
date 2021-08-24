@@ -19,12 +19,12 @@ We devised an algorithm to remove unnecessary harmonics through a creative metho
 
 
 ## Ⅰ. Introduction
-Audio to MIDI converting’ is a method of converting a wav file composed of waveforms into a MIDI file through a series of matching between MIDI note numbers and frequency values. It is a technique that can be very useful in editing music or producing sheet music by removing unnecessary harmonics that are seen in MIDI signals – which were not heard in the existing audio signals. Therefore, the fields of application such as [1] sheet music production and [2] game software production based on music files are endless. Audio to midi converting technology is a method that allows users to obtain natural and accurate midi files without any objection.
+Audio to MIDI converting’ is a method of converting a wav file composed of waveforms into a MIDI file through a series of matching between MIDI note numbers and frequency values. It is a technique that can be very useful in editing music or producing sheet music by removing unnecessary harmonics that are seen in MIDI signals – which were not heard in the existing audio signals. 
+The fields of application such as [1] sheet music production and [2] game software production based on music files are endless. Audio to midi converting technology is a method that allows users to obtain natural and accurate midi files without any objection.
 It is necessary to listen to and write a professional who has absolute pitch.
-Therefore, it can bring great benefits in terms of cost as well.
-  The audio processing system has been used continuously until now, and the audio to MIDI converting system is
-As shown in Figure 1 , it consists of three steps.
 
+The audio processing system has been used continuously until now, and the audio to MIDI converting system is
+As shown in Figure 1 , it consists of three steps.
 
 ![image](https://user-images.githubusercontent.com/65432377/130601219-50be71d5-6ad3-4986-bfee-e234733b17e1.png)
 
@@ -56,7 +56,7 @@ We devise a harmonics removal algorithm that improves upon these shortcomings to
 
 
 ## II. Methods
-1. Implementation Environment
+### 1. Implementation Environment
   1.1. Audio signal processing with MATLAB
  Get audio file data with MATLAB. Since it is necessary to analyze the frequency change over time of the audio signal,
 STFT (short time fourier transform) processing. STFT is a frequently used function in the MATLAB interface to represent a frequency that changes with time.
@@ -83,7 +83,7 @@ Figure 5: Frequecy – MIDI note number matching information
 Figure 5 shows the relationship between Frequency and MIDI note number. Frequency – Creates a DATA table in Excel where MIDI note numbers are matched with each other. Compare the STFT result value with the DATA table to find out the appropriate MIDI note number value. The resulting value is used as a component of the MIDI file.
 
 
-2. creating MIDI file
+### 2. creating MIDI file
 
  2.1. MIDI file components
 In order to make an audio file into a MIDI file, it is necessary to get the appropriate data from the audio file and to be output in MIDI format based on it.
@@ -177,9 +177,6 @@ Up to 2Hz, the correct pitch can be recognized even if there is a frequency erro
 The smaller the error range, the more delicate the low notes can be captured, but if the error range is too small, the same pitch is treated as a different note in the high pitch, which results in an inaccurate MIDI file
 
 
-
-
-
   2.4. Getting time duration
 The start time and end time should be estimated using a representative value representing a lump of contour.
 
@@ -204,7 +201,7 @@ Create an array in which the stored data is inserted according to the MIDI file 
 
 
 
-3. Improvements
+### 3. Improvements
 
   3.1. harmonics elimination
 
@@ -225,20 +222,20 @@ Conversely, if the window length is reduced, the frequency resolution decreases 
 However, one song contains both low and high notes. In order to optimize the results, different STFT parameters were applied according to the frequency.
 
 
-6. Challenging
-  6.1. Eliminated signal
+### 4. Challenging
+  4.1. Eliminated signal
 In the case of a song with a piano damper, it was not possible to properly divide the window because the energy of the previous note continues as a liaison is formed. The resulting MIDI file also had many errors.
 
-  6.2. STFT parameter change according to frequency
+  4.2. STFT parameter change according to frequency
 When the STFT input parameter is set differently according to the frequency, a low note has a high frequency resolution / low time resolution, and a high note has a low frequency resolution / high time resolution. Due to the difference in time resolution, the synchro of the low and high notes is subtly different. If the purpose of listening to music is like an audio file, it sounds a bit annoying. However, if a MIDI file is used for music analysis and notation, there is no problem because the time difference between pitches is very small.
 
-  6.3. MIDI Components - Velocity(Intensity of notes)
+  4.3. MIDI Components - Velocity(Intensity of notes)
 when using our devised algorithm, the result is a MIDI file consisted of notes of constant Velocity.
 but there is a difference between input Audio format file in terms of the intensity of the notes changes in time
 
 
 
-### Ⅲ. conclusion
+## Ⅲ. conclusion
  As mentioned in the introduction, the currently used Audio to MIDI converting system has many limitations in removing harmonics accurately. However, if you create a MIDI file after removing the harmonics through the dynamic window algorithm, you can get a midi file of accurate information and get a MIDI result without errors.
 
 This project is expected to generate a lot of demand in places that require accurate MIDI files, such as composing or editing music. 
