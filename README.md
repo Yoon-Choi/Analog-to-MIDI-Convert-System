@@ -178,6 +178,48 @@ The smaller the error range, the more delicate the low notes can be captured, bu
 
 
 
+2.4. Getting time duration
+The start time and end time should be estimated using a representative value representing a lump of contour.
+
+![image](https://user-images.githubusercontent.com/65432377/130634339-a4acfce1-9ca3-48d8-9978-a38dc3ab90b2.png)
+Figure 12: Time duration calculation
+
+Figure 12 simply shows the process of calculating sms Time duration. Make a window for scanning with a size (± error range) at the center of the representative frequency. Scan until the value in the window for scanning forwards and backwards around the representative time comes out to 0. The instantaneous time when all values in the window become 0
+Estimate Start time/End time and store it together with a representative value.
+
+
+2.5. Frequency matching using Excel Change the representative
+ 
+frequency saved in C) to MIDI note number using the data table where the frequency – MIDI note number of Excel is matched with each other.
+
+![image](https://user-images.githubusercontent.com/65432377/130634586-650d5071-44ac-4d66-a85a-bb76be939f76.png)
+Figure 13: Frequency – MIDI note number matching table
+
+
+2.6. Creating a MIDI file using Audio2midi 
+Create an array in which the stored data is inserted according to the MIDI file format, and create a MIDI file using MATLAB's matrix2midi and writemidi functions.
+
+
+
+
+3. Improvements
+3.1. harmonics elimination
+The existing Audio to MIDI converting system created a MIDI file of the result including all harmonics. Our group's Audio to MIDI converting system divides the time axis into Dynamically sized windows to remove harmonics. In each window, only windows of a similar level exist. In a window where only small level notes exist, a small threshold value is applied to preserve small fundamental frequencies and only smaller harmonics. In a window where only high-level notes exist, a high Threshold value is applied to remove large harmonics and only the fundamental frequency is saved. 
+
+3.2. STFT parameter adjustment
+STFT must be performed to represent the audio file in time to frequency. In STFT, time resolution and frequency resolution vary depending on the parameter value. Since these two are trade-off, it is important to find an optimized parameter.
+If the window length among STFT input parameters is increased, the time resolution decreases and the frequency resolution increases. Since the frequency difference between notes is small, it is possible to accurately detect low notes when the frequency resolution is high. Instead, some of the high notes are lost as the time resolution is reduced.
+
+Conversely, if the window length is reduced, the frequency resolution decreases and the time resolution increases. In the case of high notes, time resolution is more important than frequency resolution because the frequency between notes is large. With high time resolution, high sound is not lost. Instead, if the window length is too low, the frequency resolution is lowered, so it is impossible to know the exact low sound.
+
+However, one song contains both low and high notes. In order to optimize the results, different STFT parameters were applied according to the frequency.
+
+
+
+
+
+
+
 
 
 
