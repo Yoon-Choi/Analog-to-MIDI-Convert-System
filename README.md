@@ -94,7 +94,7 @@ At this time, 1) to 6) actually involved in the MIDI file, and it is okay to omi
 1) Track number: The index of the track containing the corresponding note.
 2) Channel number: Index of the channel containing the corresponding note.
 3) Note number: the electronic piano key number corresponding to the pitch
-4) Velocity: Velocity of the corresponding note
+4) Velocity: Velocity(Intensity) of the corresponding note
 5) Start time: The time at which the corresponding note is pressed
 6) End time: The time the note ends
 
@@ -203,10 +203,17 @@ Create an array in which the stored data is inserted according to the MIDI file 
 
 
 3. Improvements
-3.1. harmonics elimination
+  3.1. harmonics elimination
+
+![image](https://user-images.githubusercontent.com/65432377/130639440-90744816-494c-43a1-a0d0-22cba431d38c.png)
+Figure 14: Existing Audio2MIDI converter and newly designed Audio2MIDI (below)
+  
 The existing Audio to MIDI converting system created a MIDI file of the result including all harmonics. Our group's Audio to MIDI converting system divides the time axis into Dynamically sized windows to remove harmonics. In each window, only windows of a similar level exist. In a window where only small level notes exist, a small threshold value is applied to preserve small fundamental frequencies and only smaller harmonics. In a window where only high-level notes exist, a high Threshold value is applied to remove large harmonics and only the fundamental frequency is saved. 
 
-3.2. STFT parameter adjustment
+  3.2. STFT parameter adjustment
+  ![image](https://user-images.githubusercontent.com/65432377/130639477-3d99f463-1dbd-4ab5-b2c4-b9a3f40b7f62.png)
+Figure 15: MIDI in which STFT parameters are applied collectively (above) and STFT parameters are processed differently according to frequency file video (below)
+
 STFT must be performed to represent the audio file in time to frequency. In STFT, time resolution and frequency resolution vary depending on the parameter value. Since these two are trade-off, it is important to find an optimized parameter.
 If the window length among STFT input parameters is increased, the time resolution decreases and the frequency resolution increases. Since the frequency difference between notes is small, it is possible to accurately detect low notes when the frequency resolution is high. Instead, some of the high notes are lost as the time resolution is reduced.
 
@@ -215,6 +222,24 @@ Conversely, if the window length is reduced, the frequency resolution decreases 
 However, one song contains both low and high notes. In order to optimize the results, different STFT parameters were applied according to the frequency.
 
 
+6. Challenging
+6.1. Eliminated signal
+In the case of a song with a piano damper, it was not possible to properly divide the window because the energy of the previous note continues as a liaison is formed. The resulting MIDI file also had many errors.
+
+6.2. STFT parameter change according to frequency
+When the STFT input parameter is set differently according to the frequency, a low note has a high frequency resolution / low time resolution, and a high note has a low frequency resolution / high time resolution. Due to the difference in time resolution, the synchro of the low and high notes is subtly different. If the purpose of listening to music is like an audio file, it sounds a bit annoying. However, if a MIDI file is used for music analysis and notation, there is no problem because the time difference between pitches is very small.
+
+6.3. MIDI Components - Velocity(Intensity of notes)
+when using our devised algorithm, the result is a MIDI file consisted of notes of constant Velocity.
+but there is a difference between input Audio format file in terms of the intensity of the notes changes in time
+
+
+
+Ⅲ. conclusion
+ As mentioned in the introduction, the currently used Audio to MIDI converting system has many limitations in removing harmonics accurately. However, if you create a MIDI file after removing the harmonics through the dynamic window algorithm, you can get a midi file of accurate information and get a MIDI result without errors.
+
+This project is expected to generate a lot of demand in places that require accurate MIDI files, such as composing or editing music. 
+Also, based on MIDI files with accurate information, it could be utilized to creating songs in rhythm games or through various electronic instruments
 
 
 
